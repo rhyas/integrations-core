@@ -102,11 +102,11 @@ class TestKubernetesState(AgentCheckTest):
         self.assertServiceCheck(NAMESPACE + '.node.memory_pressure', self.check.OK)
         self.assertServiceCheck(NAMESPACE + '.node.network_unavailable', self.check.OK)
         self.assertServiceCheck(NAMESPACE + '.node.disk_pressure', self.check.OK)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.running', self.check.OK)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.pending', self.check.WARNING)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.succeeded', self.check.OK)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.failed', self.check.CRITICAL)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.unknown', self.check.UNKNOWN)
+        self.assertServiceCheck(NAMESPACE + '.pod.phase', self.check.OK,tags=['namespace:default','phase:Running','pod:task-pv-pod'])
+        self.assertServiceCheck(NAMESPACE + '.pod.phase', self.check.WARNING,tags=['namespace:default','phase:Pending','pod:failingtest-f585bbd4-2fsml'])
+        self.assertServiceCheck(NAMESPACE + '.pod.phase', self.check.OK,tags=['namespace:default','phase:Succeeded','pod:nxf-126'])
+        self.assertServiceCheck(NAMESPACE + '.pod.phase', self.check.CRITICAL,tags=['namespace:default','phase:Failed','pod:should-run-once'])
+        self.assertServiceCheck(NAMESPACE + '.pod.phase', self.check.UNKNOWN,tags=['namespace:default','phase:Unknown','pod:hello-1509998460-tzh8k'])
 
         for metric in self.METRICS:
             self.assertMetric(metric)
@@ -132,8 +132,6 @@ class TestKubernetesState(AgentCheckTest):
 
         self.assertServiceCheck(NAMESPACE + '.node.ready', self.check.OK)
         self.assertServiceCheck(NAMESPACE + '.node.out_of_disk', self.check.OK)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.running', self.check.OK)
-        self.assertServiceCheck(NAMESPACE + '.pod.phase.pending', self.check.WARNING)
 
 
         for metric in self.METRICS:

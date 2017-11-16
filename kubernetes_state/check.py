@@ -240,7 +240,7 @@ class KubernetesState(PrometheusCheck):
             return  # Ignore if gauge is not 1 and we are not checking the pod phase check
 
     def _get_metric_condition_map(self, base_sc_name, labels):
-        if base_sc_name == 'kubernetes_state.node'
+        if base_sc_name == 'kubernetes_state.node':
             switch = {
                 'Ready': {'service_check_name': base_sc_name + '.ready', 'mapping': self.condition_to_status_positive},
                 'OutOfDisk': {'service_check_name': base_sc_name + '.out_of_disk', 'mapping': self.condition_to_status_negative},
@@ -251,7 +251,7 @@ class KubernetesState(PrometheusCheck):
             label_value = self._extract_label_value('status', labels)
             return label_value, switch.get(self._extract_label_value('condition', labels), {'service_check_name': None, 'mapping': None})
         
-        elif base_sc_name == 'kubernetes_state.pod.phase'
+        elif base_sc_name == 'kubernetes_state.pod.phase':
             label_value = self._extract_label_value('phase', labels)
             return label_value, {'service_check_name': base_sc_name, 'mapping': self.pod_phase_to_status}
 
@@ -298,7 +298,7 @@ class KubernetesState(PrometheusCheck):
         """ Phase a pod is in. """
         check_basename = self.NAMESPACE + '.pod.phase'
         for metric in message.metric:
-            self._condition_to_tag_check(metric, check_name, self.condition_to_status_positive,
+            self._condition_to_tag_check(metric, check_basename, self.condition_to_status_positive,
                                          tags=[self._label_to_tag("phase", metric.label),self._label_to_tag("pod", metric.label),self._label_to_tag("namespace", metric.label)])
 
     def kube_pod_container_status_waiting_reason(self, message, **kwargs):
