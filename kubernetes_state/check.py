@@ -221,23 +221,23 @@ class KubernetesState(PrometheusCheck):
         This function evaluates metrics containing conditions and sends a service check
         based on a provided condition->check mapping dict
         """
-        if bool(metric.gauge.value) is True or base_sc_name == 'kubernetes_state.pod.phase':
-
+        if bool(metric.gauge.value) is True:
             label_value, condition_map = self._get_metric_condition_map(base_sc_name, metric.label)
             service_check_name = condition_map['service_check_name']
+            mapping = condition_map['mapping']
 
-            if bool(metric.gauge.value) is False:
-                label_value = 'true'
+            if base_sc_name == 'kubernetes_state.pod.phase':
+                message = "%s is currently reporting %s" %(self._label_to_tag('pod', metric.label), self._label_to_tag('phase', metric.label))
             else:
-                mapping = condition_map['mapping']
+                message = "%s is currently reporting %s" %(self._label_to_tag('node', metric.label), self._label_to_tag('condition', metric.label))
 
             if condition_map['service_check_name'] is None:
                 self.log.debug("Unable to handle %s - unknown condition %s" % (service_check_name, label_value))
             else:
-                self.service_check(service_check_name, mapping[label_value], tags=tags)
+                self.service_check(service_check_name, mapping[label_value], tags=tags, message=message)
                 self.log.debug("%s %s %s" % (service_check_name, mapping[label_value], tags))
         else:
-            return  # Ignore if gauge is not 1 and we are not checking the pod phase check
+            return  # Ignore if gauge is not 1 and we are not processing the pod phase check
 
     def _get_metric_condition_map(self, base_sc_name, labels):
         if base_sc_name == 'kubernetes_state.node':
@@ -297,10 +297,11 @@ class KubernetesState(PrometheusCheck):
     # From the phase the check will update its status
     def kube_pod_status_phase(self, message, **kwargs):
         """ Phase a pod is in. """
+        # Will submit a service check which status is given by its phase.
+        # More details about the phase in the message of the check.
         check_basename = self.NAMESPACE + '.pod.phase'
         for metric in message.metric:
-            message = "%s is currently reporting %s" %(self._label_to_tag("pod", metric.label), self._label_to_tag("phase", metric.label))
-            self._condition_to_tag_check(metric, check_basename, self.condition_to_status_positive,
+            self._condition_to_tag_check(metric, check_basename, self.pod_phase_to_status,
                                          tags=[self._label_to_tag("pod", metric.label),self._label_to_tag("namespace", metric.label)])
 
     def kube_pod_container_status_waiting_reason(self, message, **kwargs):
