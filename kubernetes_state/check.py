@@ -227,9 +227,9 @@ class KubernetesState(PrometheusCheck):
             mapping = condition_map['mapping']
 
             if base_sc_name == 'kubernetes_state.pod.phase':
-                message = "%s is currently reporting %s" %(self._label_to_tag('pod', metric.label), self._label_to_tag('phase', metric.label))
+                message = "%s is currently reporting %s" % (self._label_to_tag('pod', metric.label), self._label_to_tag('phase', metric.label))
             else:
-                message = "%s is currently reporting %s" %(self._label_to_tag('node', metric.label), self._label_to_tag('condition', metric.label))
+                message = "%s is currently reporting %s" % (self._label_to_tag('node', metric.label), self._label_to_tag('condition', metric.label))
 
             if condition_map['service_check_name'] is None:
                 self.log.debug("Unable to handle %s - unknown condition %s" % (service_check_name, label_value))

@@ -5,13 +5,11 @@
 # stdlib
 import mock
 import os
-from nose.plugins.attrib import attr
 
 # project
 from tests.checks.common import AgentCheckTest
 
 NAMESPACE = 'kubernetes_state'
-@attr(requires='kubernetes_state')
 
 class TestKubernetesState(AgentCheckTest):
 
