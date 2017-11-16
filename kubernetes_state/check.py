@@ -222,10 +222,10 @@ class KubernetesState(PrometheusCheck):
         based on a provided condition->check mapping dict
         """
         if bool(metric.gauge.value) is True or base_sc_name == 'kubernetes_state.pod.phase':
-        
+
             label_value, condition_map = self._get_metric_condition_map(base_sc_name, metric.label)
             service_check_name = condition_map['service_check_name']
-        
+
             if bool(metric.gauge.value) is False:
                 label_value = 'true'
             else:
@@ -250,7 +250,7 @@ class KubernetesState(PrometheusCheck):
             }
             label_value = self._extract_label_value('status', labels)
             return label_value, switch.get(self._extract_label_value('condition', labels), {'service_check_name': None, 'mapping': None})
-        
+
         elif base_sc_name == 'kubernetes_state.pod.phase':
             label_value = self._extract_label_value('phase', labels)
             return label_value, {'service_check_name': base_sc_name, 'mapping': self.pod_phase_to_status}
