@@ -292,14 +292,16 @@ class KubernetesState(PrometheusCheck):
         pattern = "(-\d{4,10}$)"
         return re.sub(pattern, '', name)
 
-    # Labels attached: namespace, pod, phase=Pending|Running|Succeeded|Failed|Unknown
-    # The phase gets not passed through; rather, it becomes the service check suffix.
+    # Labels attached: namespace, pod
+    # As a message the phase=Pending|Running|Succeeded|Failed|Unknown
+    # From the phase the check will update its status
     def kube_pod_status_phase(self, message, **kwargs):
         """ Phase a pod is in. """
         check_basename = self.NAMESPACE + '.pod.phase'
         for metric in message.metric:
+            message = "%s is currently reporting %s" %(self._label_to_tag("pod", metric.label), self._label_to_tag("phase", metric.label))
             self._condition_to_tag_check(metric, check_basename, self.condition_to_status_positive,
-                                         tags=[self._label_to_tag("phase", metric.label),self._label_to_tag("pod", metric.label),self._label_to_tag("namespace", metric.label)])
+                                         tags=[self._label_to_tag("pod", metric.label),self._label_to_tag("namespace", metric.label)])
 
     def kube_pod_container_status_waiting_reason(self, message, **kwargs):
         metric_name = self.NAMESPACE + '.container.status_report.count.waiting'
